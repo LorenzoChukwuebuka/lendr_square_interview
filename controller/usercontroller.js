@@ -160,50 +160,64 @@ module.exports = {
       const { transfer_from, transfer_to, amount } = req.body
 
       let transactiontype = 'transfer'
-
       let transactionRef = 'transfer' + transfer_from + Date.now()
-
       const user = await db('users').where({ personId: transfer_from })
-
       if (!user) {
         res.status(404).json({ message: 'user not found' })
       }
-
       //previous balance
-
-	  const balance = await db('useraccount').select(
+      const balance = await db('useraccount').select(
         db.raw(
           'ifnull((select wallet_balance from useraccount where user_id = ? order by useraccountId desc limit 1), 0 ) AS prevbal ',
           [transfer_from],
         ),
       )
-
       const previousBalance = balance[0]?.prevbal // previous balance
 
-      //new balance
+      if (amount > previousBalance) {
+        res.status(400).json({ message: 'insufficient balance' })
+      }
 
+      //new balance
       const newBalance = previousBalance - amount
 
       //save user account
-
       const userAccount = await db('useraccount').insert({
         transaction_type: transactiontype,
         transaction_reference: transactionRef,
         user_id: transfer_from,
         amount: amount,
-        wallet_balance: newBalance,
+        wallet_balance: previousBalance - amount,
         previous_wallet_balance: previousBalance,
         account_status: 'active',
       })
 
-      //save transfers account
-
-      const transfersAccount = await db('transfers').insert({
-        transfer_from: transfer_from,
-        transfer_to: transfer_to,
+      const transfer = await db('transfers').insert({
+        transferred_from: transfer_from,
+        transferred_to: transfer_to,
         amount: amount,
-        transfer_reference: transactionRef,
-        transfer_status: 'active',
+        account_status: 'pending',
+      })
+
+      const Transferbalance = await db('useraccount').select(
+        db.raw(
+          'ifnull((select wallet_balance from useraccount where user_id = ? order by useraccountId desc limit 1), 0 ) AS prevbal ',
+          [transfer_to],
+        ),
+      )
+
+      const TransferpreviousBalance = Transferbalance[0]?.prevbal // previous balance
+
+      const TransfernewBalance = TransferpreviousBalance + amount
+
+      const credit_transfered_to = await db('useraccount').insert({
+        transaction_type: transactiontype,
+        transaction_reference: transactionRef,
+        user_id: transfer_to,
+        amount: amount,
+        wallet_balance: TransfernewBalance,
+        previous_wallet_balance: TransferpreviousBalance,
+        account_status: 'active',
       })
 
       res.status(200).json({ message: 'successfully transferred' })

@@ -18,6 +18,9 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 app.use('/api', userRoutes)
+app.use('/',(req,res)=>{
+    res.send('<h4> Welcome to the app </h4>')
+})
 
 const PORT = process.env.PORT || 8081
 

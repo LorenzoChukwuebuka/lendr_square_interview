@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
+require('dotenv').config()
 
-exports.verifyToken = (req, res, next) => {
+let verifyToken = (req, res, next) => {
   try {
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
@@ -8,10 +9,14 @@ exports.verifyToken = (req, res, next) => {
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
       if (err) throw new Error('Token verification' + err)
-      req.body.tokenData = user
+      req.tokenData = user
       next()
     })
   } catch (error) {
     return res.status(401).json({ message: error.message })
   }
+}
+
+module.exports = {
+  verifyToken
 }
