@@ -7,4 +7,12 @@
 
 ## routes 
 
+Attached to the repo is the api json file for this test. 
+
+## heroku 
+
+This project is hosted at https://lendrsqr-interview.herokuapp.com/
+
+
+
 
