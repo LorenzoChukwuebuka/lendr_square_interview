@@ -5,10 +5,10 @@ module.exports = {
     client: 'mysql2',
     version: '5.7',
     connection: {
-      host: '127.0.0.1',
+      host: process.env.dbHost,
       user: process.env.dbUser,
       password: process.env.dbPass,
-      database: 'lendr_interview',
+      database: process.env.dbName,
       port: process.env.dbPort || 3306,
     },
   },
