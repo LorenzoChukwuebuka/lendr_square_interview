@@ -62,9 +62,21 @@ module.exports = {
         res.status(404).json({ message: 'user not found' })
       }
 
-      //previous balance
+      //get previous balance from useraccount
 
-      const previousBalance = user[0].wallet_balance || 0
+      const balance = await db('useraccount').select(
+        db.raw(
+          'ifnull((select wallet_balance from useraccount where user_id = ? order by useraccountId desc limit 1), 0 ) AS prevbal ',
+          [userId],
+        ),
+      )
+
+      const previousBalance = balance[0]?.prevbal // previous balance
+
+      if (amount > previousBalance) {
+        res.status(400).json({ message: 'insufficient balance' })
+      }
+
       //new balance
       const newBalance = previousBalance + amount
       //save user account
@@ -113,13 +125,19 @@ module.exports = {
       }
 
       //previous balance
-      const previousBalance = user[0].wallet_balance || 0
-
-      if (previousBalance < amount) {
+      const balance = await db('useraccount').select(
+        db.raw(
+          'ifnull((select wallet_balance from useraccount where user_id = ? order by useraccountId desc limit 1), 0 ) AS prevbal ',
+          [userId],
+        ),
+      )
+      const previousBalance = balance[0]?.prevbal // previous balance
+      if (amount > previousBalance) {
         res.status(400).json({ message: 'insufficient balance' })
       }
       //new balance
       const newBalance = previousBalance - amount
+
       //save user account
       const userAccount = await db('useraccount').insert({
         transaction_type: transactiontype,
@@ -130,6 +148,8 @@ module.exports = {
         previous_wallet_balance: previousBalance,
         account_status: 'active',
       })
+
+      res.status(200).json({ message: 'successfully withdrawn' })
     } catch (error) {
       res.status(500).json(error.message)
     }
@@ -151,7 +171,14 @@ module.exports = {
 
       //previous balance
 
-      const previousBalance = user[0].wallet_balance || 0
+	  const balance = await db('useraccount').select(
+        db.raw(
+          'ifnull((select wallet_balance from useraccount where user_id = ? order by useraccountId desc limit 1), 0 ) AS prevbal ',
+          [transfer_from],
+        ),
+      )
+
+      const previousBalance = balance[0]?.prevbal // previous balance
 
       //new balance
 
