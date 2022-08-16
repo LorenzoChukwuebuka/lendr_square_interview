@@ -226,3 +226,5 @@ module.exports = {
     }
   },
 }
+
+// mysql://b511d83a61dc34:7ef423e1@us-cdbr-east-06.cleardb.net/heroku_8e3c5a8d4f3753d?reconnect=true
