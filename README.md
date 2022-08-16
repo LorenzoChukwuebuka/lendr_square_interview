@@ -13,6 +13,10 @@ Attached to the repo is the api json file for this test.
 
 This project is hosted at https://lendrsqr-interview.herokuapp.com/
 
+## api
+
+For the purpose of testing this project I used thunder client extension in vscode. 
+
 
 
 

@@ -8,6 +8,6 @@ router.post('/login', userController.login)
 router.post('/creditAccount',verifyToken, userController.credit_user_account)
 router.get('/get_user_account/:userId',verifyToken, userController.get_user_account)
 router.post('/debitAccount',verifyToken, userController.withdrawal_user_account)
-router.post('/transferAccount', userController.transfer)
+router.post('/transferAccount',verifyToken, userController.transfer)
 
 module.exports = router
